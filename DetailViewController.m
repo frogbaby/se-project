@@ -8,6 +8,7 @@
 
 #import "DetailViewController.h"
 #import "INotesStorageManager.h"
+#import "StorageUtility.h"
 
 @interface DetailViewController ()
 
@@ -63,14 +64,26 @@
     
     [self setTitle: year];
     
+    CGSize contentSize = CGSizeMake([StorageUtility screenWidth]-40, 999999999999999);
+    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[UIFont systemFontOfSize:15],NSFontAttributeName, nil];
+    
+    CGRect contentRect = [content boundingRectWithSize:contentSize
+                                               options:NSStringDrawingTruncatesLastVisibleLine|NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading
+                                            attributes:attributes
+                                               context:nil];
+    
     
     //正文文字
-    UILabel *contentText = [[UILabel alloc] initWithFrame:CGRectMake(20, 84, [UIScreen mainScreen].bounds.size.width-40,20)];
+    UILabel *contentText = [[UILabel alloc] initWithFrame:CGRectMake(20, 20, [StorageUtility screenWidth]-40, contentRect.size.height)];
     contentText.text = content;
     contentText.textColor = [UIColor blackColor];
     contentText.font = [UIFont systemFontOfSize:15];
-    contentText.textAlignment = NSTextAlignmentLeft;
-    [self.view addSubview:contentText];
+    contentText.numberOfLines = 0;
+    
+    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 64, [StorageUtility screenWidth], [StorageUtility screenHeight]-64)];
+    scroll.contentSize = CGSizeMake(contentRect.size.width, contentRect.size.height+40);
+    [scroll addSubview:contentText];
+    [self.view addSubview:scroll];
     
     
 }

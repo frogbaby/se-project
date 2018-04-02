@@ -14,4 +14,7 @@
 
 - (void) setContentInList: (NSDictionary *)dictionary;
 
++ (CGFloat) cellHeight: (NSString *) text;
+
+
 @end
