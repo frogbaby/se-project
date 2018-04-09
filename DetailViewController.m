@@ -14,6 +14,8 @@
 
 @property (nonatomic,strong) NSDictionary *dictionary;
 
+@property (nonatomic,strong) UITextView *inputView;
+
 @end
 
 @implementation DetailViewController
@@ -42,6 +44,50 @@
             }
         }
     }
+}
+
+-(void) saveNote {
+
+    
+    NSString *content = self.inputView.text;
+    NSNumber *timestamp = [StorageUtility timestamp];
+    
+    NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:content,@"content",
+                                timestamp,@"timestamp",nil];
+    
+    BOOL saveSuccess = [INotesStorageManager storeDictionary:dictionary];
+    if(saveSuccess) {
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        NSNotification *notification = [NSNotification notificationWithName:@"newNoteSave" object:nil];
+        [center postNotification:notification];
+        
+        //[self dismissViewControllerAnimated:YES completion:nil];
+        id array = [INotesStorageManager getNote];
+        NSMutableArray *note = [NSMutableArray arrayWithArray:array];
+        
+        NSInteger count, i;
+        count = note.count;
+        for (i=0; i<count; i=i+1) {
+            if([[note[i] objectForKey:@"timestamp"] isEqual:[self.dictionary objectForKey:@"timestamp"]]) {
+                [note removeObjectAtIndex:i];
+                BOOL saveSuccess = [INotesStorageManager storeNote:note];
+                if(saveSuccess) {
+                    
+                    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+                    NSNotification *notification = [NSNotification notificationWithName:@"deleteReload" object:nil];
+                    
+                    [center postNotification:notification];
+                    [self.navigationController popViewControllerAnimated:YES];
+                    
+                    return;
+                    
+                    
+                }
+            }
+        }
+        
+    }
+    
     
     
     
@@ -58,11 +104,14 @@
     
     self.navigationItem.rightBarButtonItem = removeButton;
     
+    UIBarButtonItem *saveButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(saveNote)];
+    self.navigationItem.leftBarButtonItem = saveButton;
     
-    NSString *year = [self.dictionary objectForKey:@"yearAndMonthAndDay"];
+    
+    //NSString *year = [self.dictionary objectForKey:@"yearAndMonthAndDay"];
     NSString *content = [self.dictionary objectForKey:@"content"];
     
-    [self setTitle: year];
+   // [self setTitle: year];
     
     CGSize contentSize = CGSizeMake([StorageUtility screenWidth]-40, 999999999999999);
     NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[UIFont systemFontOfSize:15],NSFontAttributeName, nil];
@@ -73,6 +122,7 @@
                                                context:nil];
     
     
+    /*
     //正文文字
     UILabel *contentText = [[UILabel alloc] initWithFrame:CGRectMake(20, 20, [StorageUtility screenWidth]-40, contentRect.size.height)];
     contentText.text = content;
@@ -84,7 +134,13 @@
     scroll.contentSize = CGSizeMake(contentRect.size.width, contentRect.size.height+40);
     [scroll addSubview:contentText];
     [self.view addSubview:scroll];
+    */
     
+    self.inputView = [[UITextView alloc] initWithFrame:CGRectMake(0, 84, [UIScreen mainScreen].bounds.size.width,300)];
+    self.inputView.text = content;
+    [self.view addSubview:self.inputView];
+    
+    [self.inputView becomeFirstResponder];
     
 }
 

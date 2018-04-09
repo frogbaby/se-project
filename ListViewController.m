@@ -89,6 +89,10 @@
     [self.navigationController presentViewController:nav animated:YES completion:nil];
 }
 
+-(void) logOut {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 
 
 
@@ -112,6 +116,9 @@
     
     UIBarButtonItem *editButton  = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(showEdit)];
     self.navigationItem.rightBarButtonItem = editButton;
+    
+    UIBarButtonItem *logOutButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemReply target:self action:@selector(logOut)];
+    self.navigationItem.leftBarButtonItem = logOutButton;
     
     
     

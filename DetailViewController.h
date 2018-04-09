@@ -12,4 +12,5 @@
 
 - (DetailViewController*) initWithDictionary:(NSDictionary*)dictionary;
 
+
 @end

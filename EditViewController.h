@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "BaseViewController.h"
+//#import "IFlySpeechRecognizerDelegate.h"
+
+//@class IFlyDataUploader;
+//@class IFlySpeechUnderstander;
 
 @interface EditViewController : BaseViewController<UITextViewDelegate>
 

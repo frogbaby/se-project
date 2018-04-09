@@ -10,9 +10,23 @@
 #import "StorageUtility.h"
 #import "INotesStorageManager.h"
 
+/*#import "IFlyContact.h"
+#import "IFlyDataUploader.h"
+#import "IFlyUserWords.h"
+#import "IFlySpeechUtility.h"
+#import "IFlySpeechUnderstander.h"*/
+
+
+
+
 @interface EditViewController ()
 
 @property (nonatomic,strong) UITextView *inputView;
+
+/*@property (nonatomic,strong) IFlySpeechUnderstander *iFlySpeechUnderstander;
+@property (nonatomic,strong) NSString               *result;
+@property (nonatomic,strong) NSString               *str_result;
+@property (nonatomic)         BOOL                  isCanceled;*/
 
 
 
@@ -76,6 +90,16 @@
     self.inputView.editable = YES;*/
     
     [self.inputView becomeFirstResponder];
+    
+    
+    
+    
+  /*  NSString *initString = [[NSString alloc] initWithFormat:@"appid=%@,timeout=%@",@"53b5560a",@"20000"];
+    
+    [IFlySpeechUtility createUtility:initString];
+    _iFlySpeechUnderstander = [IFlySpeechUnderstander sharedInstance];
+    _iFlySpeechUnderstander.delegate = self;  */
+    
     
     
     
