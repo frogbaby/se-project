@@ -13,7 +13,6 @@
 #import "INotesStorageManager.h"
 #import "StorageUtility.h"
 #import "BlankView.h"
-#import "DBManager.h"
 
 
 @interface ListViewController ()
@@ -23,15 +22,6 @@
 @property (nonatomic,strong) UITableView *tableView;
 
 @property (nonatomic,strong) UIView *blankView;
-
-
-@property (nonatomic, strong) DBManager *dbManager;
-
-@property (nonatomic, strong) NSArray *arrPeopleInfo;
-
-
-
--(void)loadData;
 
 
 @end
@@ -67,22 +57,22 @@
     
     [self.tableView reloadData];
     
-    
+
     
     // read notes successfully, row = 0
     if([self.notes count] == 0) {
         
         [self.tableView removeFromSuperview];
         [self.blankView removeFromSuperview];
+        
         [self.view addSubview:self.blankView];
         return;
     }
     
-    
-    
     // read notes successfully, row != 0
     [self.tableView removeFromSuperview];
     [self.blankView removeFromSuperview];
+    
     [self.view addSubview:self.tableView];
     
     
@@ -141,9 +131,6 @@
     [center addObserver:self selector:@selector(refreshList) name:@"deleteReload" object:nil];
     
     
-    self.dbManager = [[DBManager alloc] initWithDatabaseFilename:@"sampledb.sql"];
-    
-    
     [self refreshList];
 }
 
@@ -173,7 +160,7 @@
     NSMutableDictionary *dateDictionary = [StorageUtility nowDate:timestamp];
     NSString *year = [dateDictionary objectForKey:@"year"];
     NSString *month = [dateDictionary objectForKey:@"month"];
-    NSString *date = [NSString stringWithFormat:@"%@/%@",year,month];
+    NSString *date = [NSString stringWithFormat:@"%@year%@month",year,month];
     [dateDictionary setObject:date forKey:@"yearAndMonth"];
     
     [dateDictionary addEntriesFromDictionary:dictionary];
@@ -237,29 +224,14 @@
     
 }
 
-
--(void)loadData{
-    // Form the query.
-    NSString *query = @"select * from userInfo";
-    
-    // Get the results.
-    if (self.arrPeopleInfo != nil) {
-        self.arrPeopleInfo = nil;
-    }
-    self.arrPeopleInfo = [[NSArray alloc] initWithArray:[self.dbManager loadDataFromDB:query]];
-    
-    // Reload the table view.
-    [self.inputView reloadData];
-}
-
 /*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
 
 @end

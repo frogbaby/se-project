@@ -1,12 +1,14 @@
 //
 //  AppDelegate.m
-//  SE-Project
+//  MyFirstApp
 //
-//  Created by danping yan on 4/15/18.
+//  Created by danping yan on 1/17/18.
 //  Copyright © 2018 danping yan. All rights reserved.
 //
 
 #import "AppDelegate.h"
+#import "ListViewController.h"
+#import "ViewController.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +19,12 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    //ListViewController *rootView = [[ListViewController alloc] init];
+    ViewController *rootView = [[ViewController alloc] init];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:rootView];
+    self.window.rootViewController = navigation;
+    [self.window makeKeyAndVisible];
     return YES;
 }
 
