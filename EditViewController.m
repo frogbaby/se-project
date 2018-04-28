@@ -10,6 +10,8 @@
 #import "StorageUtility.h"
 #import "INotesStorageManager.h"
 #import "DBManager.h"
+#import "AVAudioManager.h"
+#import <Speech/Speech.h>
 
 
 
@@ -20,13 +22,11 @@
 
 @property (nonatomic, strong) DBManager *dbManager;
 
-//@property (nonatomic,strong)IFlyRecognizerView *iflyRecognizerView;
-
-/*@property (nonatomic,strong) IFlySpeechUnderstander *iFlySpeechUnderstander;
- @property (nonatomic,strong) NSString               *result;
- @property (nonatomic,strong) NSString               *str_result;
- @property (nonatomic)         BOOL                  isCanceled;*/
-
+@property(nonatomic,strong)SFSpeechRecognizer *bufferRec;
+@property(nonatomic,strong)SFSpeechAudioBufferRecognitionRequest *bufferRequest;
+@property(nonatomic,strong)SFSpeechRecognitionTask *bufferTask;
+@property(nonatomic,strong)AVAudioEngine *bufferEngine;
+@property(nonatomic,strong)AVAudioInputNode *buffeInputNode;
 
 
 @end
@@ -111,38 +111,23 @@
 }
 
 
-/*- (void)startListenning:(id)sender{
-    [self.iflyRecognizerView start];
-    NSLog(@"开始识别");
-}
-
-//返回数据处理
-- (void)onResult:(NSArray *)resultArray isLast:(BOOL)isLast
-{
-    NSMutableString *result = [NSMutableString new];
-    NSDictionary *dic = [resultArray objectAtIndex:0];
-    NSLog(@"DIC:%@",dic);
-    for (NSString *key in dic) {
-        [result appendFormat:@"%@",key];
-    }
-    //把相应的控件赋值为result.例如:label.text = result;
-    self.inputView.text = result;
-}
-
-- (void)onError:(IFlySpeechError *)error
-{
-    
-}  */
-
-
-
-
-
 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    
+    // voice
+    [SFSpeechRecognizer requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status) {
+
+        if(status != SFSpeechRecognizerAuthorizationStatusAuthorized){
+            NSLog(@"exit");
+            [@[] objectAtIndex:1];
+        }
+    }];
+    [[AVAudioManager shareAudioManager] startRecording];
+    
     
     [self setContentTitle:@"Edit"];
     
@@ -170,19 +155,78 @@
     self.dbManager = [[DBManager alloc] initWithDatabaseFilename:@"sampledb.sql"];
     
     
-    /*NSString *appid = @"5ac6d6f5";// appId
-    NSString *initString = [NSString stringWithFormat:@"appid=%@",appid];
-    [IFlySpeechUtility createUtility:initString];
-    
-    self.iflyRecognizerView.delegate = self;
-    [self.view addSubview:self.iflyRecognizerView];
-    [self.iflyRecognizerView setParameter: @"iat" forKey:[IFlySpeechConstant IFLY_DOMAIN]];
-    //asr_audio_path保存录音文件名,默认目录是documents
-    [self.iflyRecognizerView setParameter: @"asrview.pcm" forKey:[IFlySpeechConstant ASR_AUDIO_PATH]];
-    //设置返回的数据格式为默认plain
-    [self.iflyRecognizerView setParameter:@"plain" forKey:[IFlySpeechConstant RESULT_TYPE]];
-    [self startListenning:self.iflyRecognizerView];//可以建一个按钮,点击按钮调用此方法 */
 
+    
+    
+    
+    UIButton *registerBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    registerBtn.frame = CGRectMake(150, 350, 100, 30);
+    [registerBtn setTitle:@"Start" forState:UIControlStateNormal];
+    [registerBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [registerBtn addTarget:self action:@selector(startBufferR:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:registerBtn];
+    
+    UIButton *loginBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    loginBtn.frame = CGRectMake(150, 400, 100, 30);
+    [loginBtn setTitle:@"Stop" forState:UIControlStateNormal];
+    [loginBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [loginBtn addTarget:self action:@selector(stopBufferR:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:loginBtn];
+    
+    
+ 
+
+}
+
+- (IBAction)startBufferR:(id)sender {
+    
+    self.bufferRec = [[SFSpeechRecognizer alloc]initWithLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
+    self.bufferEngine = [[AVAudioEngine alloc]init];
+    self.buffeInputNode = [self.bufferEngine inputNode];
+    
+    if (_bufferTask != nil) {
+        [_bufferTask cancel];
+        _bufferTask = nil;
+    }
+    
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryRecord error:nil];
+    [audioSession setMode:AVAudioSessionModeMeasurement error:nil];
+    [audioSession setActive:true error:nil];
+    
+    self.bufferRequest = [[SFSpeechAudioBufferRecognitionRequest alloc]init];
+    self.bufferRequest.shouldReportPartialResults = true;
+    __weak EditViewController *weakSelf = self;
+    self.bufferTask = [self.bufferRec recognitionTaskWithRequest:self.bufferRequest resultHandler:^(SFSpeechRecognitionResult * _Nullable result, NSError * _Nullable error) {
+        
+        if (result != nil) {
+            weakSelf.inputView.text = result.bestTranscription.formattedString;
+        }
+        if (error != nil) {
+            NSLog(@"%@",error.userInfo);
+        }
+    }];
+    
+
+    AVAudioFormat *format =[self.buffeInputNode outputFormatForBus:0];
+    [self.buffeInputNode installTapOnBus:0 bufferSize:1024 format:format block:^(AVAudioPCMBuffer * _Nonnull buffer, AVAudioTime * _Nonnull when) {
+        [weakSelf.bufferRequest appendAudioPCMBuffer:buffer];
+    }];
+    
+    [self.bufferEngine prepare];
+    NSError *error = nil;
+    if (![self.bufferEngine startAndReturnError:&error]) {
+        NSLog(@"%@",error.userInfo);
+    };
+    self.inputView.text = @"Say something.....";
+}
+
+- (IBAction)stopBufferR:(id)sender {
+    [self.bufferEngine stop];
+    [self.buffeInputNode removeTapOnBus:0];
+    self.inputView.text = @"";
+    self.bufferRequest = nil;
+    self.bufferTask = nil;
 }
 
 

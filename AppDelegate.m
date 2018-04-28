@@ -1,12 +1,19 @@
 //
 //  AppDelegate.m
-//  SE-Project
+//  MyFirstApp
 //
-//  Created by danping yan on 4/15/18.
+//  Created by danping yan on 1/17/18.
 //  Copyright © 2018 danping yan. All rights reserved.
 //
 
 #import "AppDelegate.h"
+#import "ListViewController.h"
+#import "LoginViewController.h"
+
+/*#import "IFlyRecognizerViewDelegate.h"
+ #import "IFlySpeechUtility.h"
+ #import "IFlyRecognizerView.h"
+ #import "IFlySpeechConstant.h"*/
 
 @interface AppDelegate ()
 
@@ -17,7 +24,23 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    /*NSString *appid = @"5ac6d6f5";// appId
+     NSString *initString = [NSString stringWithFormat:@"appid=%@",appid];
+     [IFlySpeechUtility createUtility:initString];*/
+    
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    //ListViewController *rootView = [[ListViewController alloc] init];
+    LoginViewController *rootView = [[LoginViewController alloc] init];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:rootView];
+    self.window.rootViewController = navigation;
+    [self.window makeKeyAndVisible];
     return YES;
+    
+    
+    
+    
+    
 }
 
 

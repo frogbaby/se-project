@@ -1,9 +1,9 @@
 //
 //  main.m
-//  SE-Project
+//  SXSpeechRecognitionTwoWays
 //
-//  Created by danping yan on 4/15/18.
-//  Copyright © 2018 danping yan. All rights reserved.
+//  Created by dongshangxian on 2016/12/15.
+//  Copyright © 2016年 Sankuai. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

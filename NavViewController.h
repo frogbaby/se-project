@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  NavViewController.h
 //  SXSpeechRecognitionTwoWays
 //
 //  Created by dongshangxian on 2016/12/15.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface NavViewController : UINavigationController
 
 @end
-
